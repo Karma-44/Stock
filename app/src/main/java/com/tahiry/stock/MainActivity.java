@@ -1,4 +1,4 @@
-// Emplacement : app/src/main/java/com/tahiry/stock/MainActivity.java
+
 package com.tahiry.stock;
 
 import android.os.Bundle;

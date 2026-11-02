@@ -1,4 +1,3 @@
-
 package com.tahiry.stock;
 
 import android.os.Bundle;
@@ -13,7 +12,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main); // Ou chargement direct du WebView
 
         webView = new WebView(this);
         WebSettings webSettings = webView.getSettings();
@@ -33,4 +31,3 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 }
-

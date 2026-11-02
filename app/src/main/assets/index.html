@@ -1,35 +1,188 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tahiry Stock</title>
+    <title>Tahiry Stock & Vente</title>
     <style>
+        :root {
+            --primary: #007bff;
+            --success: #28a745;
+            --danger: #dc3545;
+            --bg: #f4f6f9;
+            --card-bg: #fff;
+            --text: #333;
+        }
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f6f9;
+            background-color: var(--bg);
             margin: 0;
-            padding: 20px;
-            color: #333;
+            padding: 15px;
+            color: var(--text);
         }
-        h1 {
-            color: #007bff;
+        h1, h2 {
+            color: var(--primary);
+            font-size: 1.4rem;
         }
         .card {
-            background: white;
+            background: var(--card-bg);
             padding: 15px;
             margin-bottom: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button.btn-sell {
+            background-color: var(--success);
+            width: auto;
+            padding: 5px 10px;
+            margin: 0;
+            font-size: 0.85rem;
+        }
+        button.btn-delete {
+            background-color: var(--danger);
+            width: auto;
+            padding: 5px 10px;
+            margin: 0;
+            font-size: 0.85rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+        }
+        .actions-cell {
+            display: flex;
+            gap: 5px;
+        }
     </style>
 </head>
 <body>
-    <h1>Gestion de Stock - Tahiry</h1>
+
+    <h1>📦 Tahiry Stock & Vente</h1>
+
+    <!-- Formulaire d'ajout de produit -->
     <div class="card">
-        <p>Bienvenue dans votre application de gestion de stock mobile intégrée.</p>
+        <h2>Ajouter un Produit</h2>
+        <input type="text" id="prodName" placeholder="Nom du produit">
+        <input type="number" id="prodQty" placeholder="Quantité en stock">
+        <input type="number" id="prodPrice" placeholder="Prix unitaire (Ar)">
+        <button onclick="addProduct()">Ajouter au stock</button>
     </div>
+
+    <!-- Liste des stocks -->
+    <div class="card">
+        <h2>État du Stock</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Produit</th>
+                    <th>Qté</th>
+                    <th>Prix</th>
+                    <th>Actions</th>
+                </tr>
+            Ref</thead>
+            <tbody id="stockTableBody">
+                <!-- Les produits s'afficheront ici dynamiquement -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Charger les produits sauvegardés ou initialiser un tableau vide
+        let stock = JSON.parse(localStorage.getItem('tahiry_stock')) || [];
+
+        function saveAndRender() {
+            localStorage.setItem('tahiry_stock', JSON.stringify(stock));
+            renderStock();
+        }
+
+        function addProduct() {
+            const name = document.getElementById('prodName').value.trim();
+            const qty = parseInt(document.getElementById('prodQty').value);
+            const price = parseFloat(document.getElementById('prodPrice').value);
+
+            if (!name || isNaN(qty) || isNaN(price)) {
+                alert("Veuillez remplir tous les champs correctement !");
+                return;
+            }
+
+            stock.push({ id: Date.now(), name, qty, price });
+            
+            // Vider les champs
+            document.getElementById('prodName').value = '';
+            document.getElementById('prodQty').value = '';
+            document.getElementById('prodPrice').value = '';
+
+            saveAndRender();
+        }
+
+        function sellProduct(id) {
+            const product = stock.find(p => p.id === id);
+            if (product && product.qty > 0) {
+                product.qty -= 1;
+                saveAndRender();
+            } else {
+                alert("Stock épuisé !");
+            }
+        }
+
+        function deleteProduct(id) {
+            stock = stock.filter(p => p.id !== id);
+            saveAndRender();
+        }
+
+        function renderStock() {
+            const tbody = document.getElementById('stockTableBody');
+            tbody.innerHTML = '';
+
+            if (stock.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#777;">Aucun produit en stock</td></tr>`;
+                return;
+            }
+
+            stock.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${item.name}</strong></td>
+                    <td>${item.qty}</td>
+                    <td>${item.price} Ar</td>
+                    <td class="actions-cell">
+                        <button class="btn-sell" onclick="sellProduct(${item.id})">Vendre</button>
+                        <button class="btn-delete" onclick="deleteProduct(${item.id})">X</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Afficher les données au chargement de la page
+        renderStock();
+    </script>
 </body>
 </html>
-
